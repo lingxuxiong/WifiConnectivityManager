@@ -1,2 +1,3 @@
+include ':WiFiConnectivityManager'
 include ':app'
 rootProject.name = "WifiConnectivityManager"
