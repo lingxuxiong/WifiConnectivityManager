@@ -1,5 +1,7 @@
 package com.wifi.connectivitymanager
 
+import com.wifi.connectivitymanager.errors.WifiConnectError
+
 /**
  * Callback used to receive the result of the connect request.
  * Callers of the <var>connect</var> requests should register

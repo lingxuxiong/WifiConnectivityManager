@@ -8,14 +8,13 @@ import android.content.Context
  * It relies on [android.net.wifi.WifiConfiguration] to config and
  * connect to the target network.
  */
-class WifiConnectivityManagerPreAndroid10Imp(context: Context)
-    : WifiConnectivityManager(context) {
+class WifiConnectivityManagerPreAndroid10Imp(context: Context) : WifiConnectivityManager(context) {
 
     override fun connect(ssid: String, password: String?) {
         TODO("Not yet implemented")
     }
 
-    override fun connect(ssid: String, password: String?, timeout: Int) {
+    override fun connect(ssid: String, password: String?, timeoutInSeconds: Int) {
         TODO("Not yet implemented")
     }
 
