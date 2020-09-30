@@ -17,7 +17,7 @@ import com.wifi.connectivitymanager.errors.WifiConnectError
  *  defines how the <code>connect</code> result gets notified by regiserting
  *  a connection callback listener [OnConnectResultCallback].
  */
-abstract class WifiConnectivityManager(context: Context, handler: Handler) {
+abstract class WifiConnectivityManager(context: Context) {
 
     val UNKNOWN_SSID = "<unknown ssid>"
     val DEFAULT_CONNECT_TIME_OUT_SECONDS = 30
@@ -26,19 +26,21 @@ abstract class WifiConnectivityManager(context: Context, handler: Handler) {
     private val _wm: WifiManager
     private val _cm: ConnectivityManager
     private val _connectivityMonitor: ConnectivityMonitor
-    private val _uiHandler: Handler
     private val _callbacks: HashSet<OnConnectResultCallback>
+    private var _uiHandler: Handler
 
     init {
         _ctx = context.applicationContext
         _wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         _cm = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         _connectivityMonitor = ConnectivityMonitor(context)
-        _uiHandler = handler
+        _uiHandler = Handler(Looper.getMainLooper())
         _callbacks = LinkedHashSet()
     }
 
-    constructor(context: Context) : this(context, Handler(Looper.getMainLooper()))
+    constructor(context: Context, handler: Handler) : this(context) {
+        _uiHandler = handler
+    }
 
     /**
      * Connects the mobile device to the network with specified SSID. Note that callers
