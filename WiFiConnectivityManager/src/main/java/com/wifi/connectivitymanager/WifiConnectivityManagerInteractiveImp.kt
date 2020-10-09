@@ -18,7 +18,7 @@ class WifiConnectivityManagerInteractiveImp(context: Context) : WifiConnectivity
         TODO("Not yet implemented")
     }
 
-    override fun disconnect() {
-        TODO("Not yet implemented")
+    override fun disconnect(): Boolean {
+        return true
     }
 }

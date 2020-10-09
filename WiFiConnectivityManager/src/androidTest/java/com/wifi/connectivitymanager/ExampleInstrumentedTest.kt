@@ -21,4 +21,14 @@ class ExampleInstrumentedTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         assertEquals("com.wifi.connectivitymanager.test", appContext.packageName)
     }
+
+    @Test
+    fun testStringReplaceWithRegex() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val wcm = WifiConnectivityManagerAndroid10Imp(context)
+        val original = "Hello"
+        val quotedString = "\"$original\""
+        val replaced = wcm.unquote(quotedString)
+        assertEquals(original, replaced)
+    }
 }

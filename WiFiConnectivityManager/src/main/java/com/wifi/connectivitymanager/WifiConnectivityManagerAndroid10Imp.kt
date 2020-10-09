@@ -36,8 +36,7 @@ class WifiConnectivityManagerAndroid10Imp(context: Context) : WifiConnectivityMa
 
         Log.i(LOG_TAG, "connecting to $ssid")
 
-        if (getNetworkCallback() != null) {
-
+        if (isConnectingOrConnected()) {
             // Disconnect from currently connected network and wait until the system
             // auto-reconnect to a new network, which might or might not be the same
             // network we are connecting to, if it is then we are done, otherwise,
@@ -45,7 +44,7 @@ class WifiConnectivityManagerAndroid10Imp(context: Context) : WifiConnectivityMa
             // dialog only comes up at most once, which would otherwise may appear
             // multiple times and end up with a "Something came up" failure dialog.
             disconnect()
-            getConnectivityMonitor().startMonitoring(getContext(),
+            getConnectivityMonitor().start(
                 object : ConnectivityMonitor.OnConnectivityChangedListener {
                     override fun onConnectivityChanged(
                         wifiEnabled: Boolean,
@@ -54,10 +53,10 @@ class WifiConnectivityManagerAndroid10Imp(context: Context) : WifiConnectivityMa
                         Log.d(LOG_TAG, "connectivityChanged, wifiEnabled: $wifiEnabled, " +
                                 "cellularEnabled: $cellularEnabled")
                     if (wifiEnabled) {
-                        getConnectivityMonitor().stopMonitoring()
+                        getConnectivityMonitor().stop()
                         if (checkHasConnectedTo(ssid)) {
                             Log.d(LOG_TAG, "system auto reconnected to $ssid")
-                            notifyConnectivityAvailable(ssid);
+                            notifyConnectivityAvailable(ssid)
                         } else {
                             Log.d(LOG_TAG, "current ssid is ${getCurrentSSID()}")
                             connect(ssid, password, DefaultNetworkCallback(), timeoutInSeconds)
@@ -76,35 +75,42 @@ class WifiConnectivityManagerAndroid10Imp(context: Context) : WifiConnectivityMa
         callback: ConnectivityManager.NetworkCallback,
         timeoutInSeconds: Int
     ) {
+        _networkCallback = callback
+
         val wifiSpecifierBuilder = WifiNetworkSpecifier.Builder()
         val ssidPattern = PatternMatcher(ssid, PatternMatcher.PATTERN_PREFIX)
+
         wifiSpecifierBuilder.setSsidPattern(ssidPattern)
         if (password != null) {
             wifiSpecifierBuilder.setWpa2Passphrase(password)
         }
+
         val request = NetworkRequest.Builder()
             .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
             .setNetworkSpecifier(wifiSpecifierBuilder.build())
             .build()
-        val timeoutMs = TimeUnit.MILLISECONDS.convert(timeoutInSeconds.toLong(), TimeUnit.SECONDS
+        val timeoutMs = TimeUnit.MILLISECONDS.convert(
+            timeoutInSeconds.toLong(), TimeUnit.SECONDS
         )
+
         getConnectivityManager().requestNetwork(request, callback, timeoutMs.toInt())
-        _networkCallback = callback
     }
 
-    override fun disconnect() {
-        if (getNetworkCallback() != null) {
+    override fun disconnect(): Boolean {
+        return if (isConnectingOrConnected()) {
             Log.i(LOG_TAG, "disconnecting from current network ${getCurrentSSID()}")
-            getConnectivityManager().unregisterNetworkCallback(getNetworkCallback())
+            getConnectivityManager().unregisterNetworkCallback(_networkCallback!!)
             getConnectivityManager().bindProcessToNetwork(null)
             _networkCallback = null
+            true
         } else {
-            Log.i(LOG_TAG, "no network callback to disconnect from")
+            Log.i(LOG_TAG, "not connected before")
+            false
         }
     }
 
-    private fun getNetworkCallback(): ConnectivityManager.NetworkCallback? {
-        return _networkCallback
+    private fun isConnectingOrConnected(): Boolean {
+        return _networkCallback != null
     }
 
     inner class DefaultNetworkCallback : ConnectivityManager.NetworkCallback() {

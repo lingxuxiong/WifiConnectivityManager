@@ -18,7 +18,7 @@ class WifiConnectivityManagerPreAndroid10Imp(context: Context) : WifiConnectivit
         TODO("Not yet implemented")
     }
 
-    override fun disconnect() {
-        TODO("Not yet implemented")
+    override fun disconnect(): Boolean {
+        return true
     }
 }

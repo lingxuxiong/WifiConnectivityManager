@@ -68,7 +68,7 @@ abstract class WifiConnectivityManager(context: Context) {
      * resources that might have been used in the corresponding [connect] request. For
      * example, unregister broadcast receivers that have been registered.
      */
-    abstract fun disconnect()
+    abstract fun disconnect(): Boolean
 
     /**
      * Returns if the mobile phone has connected to the specified SSID, true if
@@ -142,7 +142,7 @@ abstract class WifiConnectivityManager(context: Context) {
      * @return new string with surrounded with the double-quotes striped off.
      */
     fun unquote(quotedString: String): String {
-        return quotedString.replace("^\"|\"$", "")
+        return quotedString.replace("\"", "")
     }
 
     fun getUiHandler(): Handler = _uiHandler
