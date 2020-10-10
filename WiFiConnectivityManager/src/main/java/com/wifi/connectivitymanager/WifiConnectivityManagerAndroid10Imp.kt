@@ -44,7 +44,7 @@ class WifiConnectivityManagerAndroid10Imp(context: Context) : WifiConnectivityMa
             // dialog only comes up at most once, which would otherwise may appear
             // multiple times and end up with a "Something came up" failure dialog.
             disconnect()
-            getConnectivityMonitor().start(
+            getConnectivityMonitor().startMonitoring(
                 object : ConnectivityMonitor.OnConnectivityChangedListener {
                     override fun onConnectivityChanged(
                         wifiEnabled: Boolean,
@@ -53,7 +53,7 @@ class WifiConnectivityManagerAndroid10Imp(context: Context) : WifiConnectivityMa
                         Log.d(LOG_TAG, "connectivityChanged, wifiEnabled: $wifiEnabled, " +
                                 "cellularEnabled: $cellularEnabled")
                     if (wifiEnabled) {
-                        getConnectivityMonitor().stop()
+                        getConnectivityMonitor().stopMonitoring()
                         if (checkHasConnectedTo(ssid)) {
                             Log.d(LOG_TAG, "system auto reconnected to $ssid")
                             notifyConnectivityAvailable(ssid)

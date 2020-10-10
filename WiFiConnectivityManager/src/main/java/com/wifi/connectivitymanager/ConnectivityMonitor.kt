@@ -28,13 +28,13 @@ class ConnectivityMonitor(private val context: Context) : BroadcastReceiver() {
         onConnectivityChangedListener.onConnectivityChanged(wifiEnabled, cellEnabled)
     }
 
-    fun start(onConnectivityChangedListener: OnConnectivityChangedListener) {
+    fun startMonitoring(onConnectivityChangedListener: OnConnectivityChangedListener) {
         this.onConnectivityChangedListener = onConnectivityChangedListener
         val intentFilter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         this.context.registerReceiver(this, intentFilter)
     }
 
-    fun stop() {
+    fun stopMonitoring() {
         context.unregisterReceiver(this)
     }
 

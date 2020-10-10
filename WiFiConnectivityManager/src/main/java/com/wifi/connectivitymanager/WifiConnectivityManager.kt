@@ -25,6 +25,7 @@ abstract class WifiConnectivityManager(context: Context) {
     private val _ctx: Context
     private val _wm: WifiManager
     private val _cm: ConnectivityManager
+    private val _as: APScanner
     private val _connectivityMonitor: ConnectivityMonitor
     private val _callbacks: HashSet<OnConnectResultCallback>
     private var _uiHandler: Handler
@@ -33,6 +34,7 @@ abstract class WifiConnectivityManager(context: Context) {
         _ctx = context.applicationContext
         _wm = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
         _cm = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        _as = APScanner(context)
         _connectivityMonitor = ConnectivityMonitor(context)
         _uiHandler = Handler(Looper.getMainLooper())
         _callbacks = LinkedHashSet()
@@ -99,11 +101,18 @@ abstract class WifiConnectivityManager(context: Context) {
     fun bindProcessToNetwork(network: Network?): Boolean {
         // https://android-developers.googleblog.com/2016/07/
         // connecting-your-app-to-wi-fi-device.html
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        return if (shouldBindProcessToNetwork() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             getConnectivityManager().bindProcessToNetwork(network)
         } else {
-            true
+            false
         }
+    }
+
+    /**
+     * Returns true if current process should be bound to the target network.
+     */
+    open fun shouldBindProcessToNetwork(): Boolean {
+        return true
     }
 
     /**
@@ -128,6 +137,11 @@ abstract class WifiConnectivityManager(context: Context) {
     fun getConnectivityMonitor(): ConnectivityMonitor = _connectivityMonitor
 
     /**
+     * Returns the Access Point scanner that can be used to scan APs nearby.
+     */
+    fun getApScanner(): APScanner = _as
+
+    /**
      * Returns the name of the Wi-Fi network the device is currently connected to, or
      * returns [UNKNOWN_SSID] if otherwise not available, most probably, due to missing
      * network permission.
@@ -143,6 +157,15 @@ abstract class WifiConnectivityManager(context: Context) {
      */
     fun unquote(quotedString: String): String {
         return quotedString.replace("\"", "")
+    }
+
+    /**
+     * Returns the provided string surrounded with double-quotes (").
+     * @param string String to surround with quotes
+     * @return the provided string surrounded with double-quotes
+     */
+    fun quote(string: String?): String {
+        return "\"" + string + "\""
     }
 
     fun getUiHandler(): Handler = _uiHandler

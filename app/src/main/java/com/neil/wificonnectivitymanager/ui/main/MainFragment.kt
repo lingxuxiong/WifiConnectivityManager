@@ -1,8 +1,6 @@
 package com.neil.wificonnectivitymanager.ui.main
 
 import android.Manifest
-import android.app.Dialog
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -10,6 +8,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
@@ -40,21 +39,17 @@ class MainFragment : Fragment(), OnConnectResultCallback {
     private lateinit var viewModel: MainViewModel
     private lateinit var wifiConnManager: WifiConnectivityManager
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
-    override fun onDetach() {
-        super.onDetach()
-        wifiConnManager.unregisterConnectResultCallback(this)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         return inflater.inflate(R.layout.main_fragment, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        view.findViewById<Button>(R.id.connect).setOnClickListener {connectTo()}
+        view.findViewById<Button>(R.id.disconnect).setOnClickListener {disconnectFrom()}
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -76,17 +71,17 @@ class MainFragment : Fragment(), OnConnectResultCallback {
                 return
             }
         }
-        createDialog().show()
+        connectTo()
     }
 
-    private fun createDialog(): Dialog {
+    private fun connectTo() {
         val items = arrayOf<CharSequence>(
             "Ayla-DevKit;",
             "QA-TPLINK;@ayla123",
             "SUNSEAAIOT-Office;sunseaaiot"
         )
 
-        return AlertDialog.Builder(context!!)
+        AlertDialog.Builder(context!!)
             .setTitle(R.string.app_name)
             .setSingleChoiceItems(
                 items, 0
@@ -96,16 +91,19 @@ class MainFragment : Fragment(), OnConnectResultCallback {
                 val pwd = item[1]
                 wifiConnManager.connect(ssid, pwd)
                 dialog.dismiss()
-            }.create()
+            }
+            .create()
+            .show()
+    }
+
+    private fun disconnectFrom() {
+        wifiConnManager.disconnect()
     }
 
     override fun onResume() {
         super.onResume()
         wifiConnManager.registerConnectResultCallback(this)
-        Log.d(LOG_TAG, "current ssid:${wifiConnManager.getCurrentSSID()}")
-        if (missingPermissions().isEmpty()) {
-            createDialog().show()
-        } else {
+        if (missingPermissions().isNotEmpty()) {
             requestPermissions(missingPermissions())
         }
     }
