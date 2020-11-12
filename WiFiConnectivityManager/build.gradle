@@ -17,7 +17,7 @@ publish {
     repoName = 'tools'
     groupId = 'com.nling.tools'
     artifactId = 'wificonnectivitymanager'
-    publishVersion = '0.0.1'
+    publishVersion = '0.0.2'
     desc = 'This repository aims to provide an uniform interface for apps to connect to a specific Wi-Fi network, without having to care about what the OS version the app is running on or is targeting to. Internally, it handles the details when it comes to connecting to or disconnecting from a Wi-Fi network, and of course, it behaves differently on different OS platform.'
     website = 'https://github.com/lingxuxiong/WifiConnectivityManager'
 }

@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.neil.wificonnectivitymanager.R
+import com.wifi.connectivitymanager.ConnectivityManagerBuilder
 import com.wifi.connectivitymanager.OnConnectResultCallback
 import com.wifi.connectivitymanager.WifiConnectivityManager
 import com.wifi.connectivitymanager.WifiConnectivityManagerAndroid10Imp
@@ -55,7 +56,10 @@ class MainFragment : Fragment(), OnConnectResultCallback {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
-        wifiConnManager = WifiConnectivityManagerAndroid10Imp(context!!)
+        wifiConnManager = ConnectivityManagerBuilder(context!!)
+            .addConnectivityCallback(this)
+            .setInteractive(false)
+            .build()
     }
 
     override fun onRequestPermissionsResult(
